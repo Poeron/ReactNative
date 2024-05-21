@@ -22,7 +22,7 @@ export default function LoginScreen() {
     .createUserWithEmailAndPassword(email, password)
     .then(userCredentials => {
       const user = userCredentials.user;
-      console.log('Kullanici Giris Yapti', user.email)
+      console.log('Kullanici Uye Oldu', user.email)
     })
     .catch(error => alert(error.message))
   }

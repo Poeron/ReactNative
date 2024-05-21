@@ -6,13 +6,13 @@ import 'firebase/compat/auth';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyAoUaFG-7-Cq-a7V0e2GDvDJ106MRqiPHg",
-    authDomain: "carwashbooking-7911c.firebaseapp.com",
-    projectId: "carwashbooking-7911c",
-    storageBucket: "carwashbooking-7911c.appspot.com",
-    messagingSenderId: "906666963037",
-    appId: "1:906666963037:web:0c7e50d631aa82ac8a5db4"
-};
+    apiKey: "AIzaSyDbe-Mb0E9ezw5bu_b9YieQQRh61VQUAPg",
+    authDomain: "reactapp-cbbea.firebaseapp.com",
+    projectId: "reactapp-cbbea",
+    storageBucket: "reactapp-cbbea.appspot.com",
+    messagingSenderId: "575141842092",
+    appId: "1:575141842092:web:924021acd6a5434718e309"
+  };
 
 // Initialize Firebase
 if (!firebase.apps.length) {
