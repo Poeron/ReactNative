@@ -1,40 +1,54 @@
 import { StyleSheet, Text, View, KeyboardAvoidingView, TextInput, TouchableOpacity } from 'react-native'
-import React, { useState, useEffect } from 'react'
-import { auth } from '../firebase'
+import React, { useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-
   const navigation = useNavigation()
 
-  useEffect(() => {
-    auth.onAuthStateChanged(user => {
-      if(user){
-        navigation.navigate('Home')
-      }
-    })
-  },[])
-
   const handleSignUp = () => {
-    auth
-    .createUserWithEmailAndPassword(email, password)
-    .then(userCredentials => {
-      const user = userCredentials.user;
-      console.log('Kullanici Uye Oldu', user.email)
-    })
-    .catch(error => alert(error.message))
+    navigation.navigate('Register')
   }
 
   const handleLogin = () => {
-    auth.signInWithEmailAndPassword(email, password).
-    then(userCredentials => {
-      const user = userCredentials.user;
-      console.log('Kullanici', user.email)
-    })
-    .catch(error => alert(error.message))
-  }
+    // HTTP isteği için gereken veriler
+    const data = {
+      email: email,
+      password: password
+    };
+  
+    // HTTP isteği için ayarlar
+    const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json; charset=utf-8' },
+      body: JSON.stringify(data)
+    };
+  
+    // HTTP isteği gönder
+    fetch('http://192.168.1.23:3000/login', requestOptions)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Kullanıcı girişi başarısız');
+        }
+        return response.json();
+      })
+      .then(data => {
+        // Kullanıcı girişi başarılı
+        console.log('Kullanıcı', data.email);
+        
+        // Kullanıcı girişi başarılı olduğunda ilgili ekrana yönlendirme
+        if(data.usertype === 'admin'){
+          navigation.navigate('AdminScreen')
+        } else {
+          navigation.navigate('UserScreen', { userId: data.id })
+        }
+      })
+      .catch(error => {
+        // Hata durumunda
+        alert(error.message);
+      });
+  };
 
   return (
     <KeyboardAvoidingView
