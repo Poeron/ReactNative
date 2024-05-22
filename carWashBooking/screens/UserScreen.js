@@ -40,7 +40,7 @@ const MainScreen = () => {
   const handleAppointment = () => {
     // Seçilen tarihe bir gün ekleyerek yeni bir tarih oluştur
     const appointmentDate = new Date(selectedDate);
-    appointmentDate.setDate(appointmentDate.getDate() + 1); // Seçili tarihe bir gün ekleyerek güncelle
+    appointmentDate.setDate(appointmentDate.getDate()); // Seçili tarihe bir gün ekleyerek güncelle
   
     // Randevu oluşturma işlemi
     const requestOptions = {
@@ -68,7 +68,7 @@ const MainScreen = () => {
 
   const fetchReservations = (date) => {
     const appointmentDate = new Date(selectedDate);
-    appointmentDate.setDate(appointmentDate.getDate() + 1); // Seçili tarihe bir gün ekleyerek güncelle
+    appointmentDate.setDate(appointmentDate.getDate()); // Seçili tarihe bir gün ekleyerek güncelle
     // Belirli bir tarihe ait rezervasyon saatlerini getirme işlemi
     fetch(`http://192.168.1.23:3000/home/reservations?date=${appointmentDate.toISOString().split('T')[0]}`)
       .then(response => response.json())
