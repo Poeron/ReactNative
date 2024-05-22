@@ -53,7 +53,7 @@ const MainScreen = () => {
       })
     };
   
-    fetch('http://192.168.1.23:3000/reservations', requestOptions)
+    fetch('http://192.168.1.22:3000/reservations', requestOptions)
       .then(response => response.json())
       .then(data => {
         console.log('Randevu oluşturuldu:', data);
@@ -70,7 +70,7 @@ const MainScreen = () => {
     const appointmentDate = new Date(selectedDate);
     appointmentDate.setDate(appointmentDate.getDate()); // Seçili tarihe bir gün ekleyerek güncelle
     // Belirli bir tarihe ait rezervasyon saatlerini getirme işlemi
-    fetch(`http://192.168.1.23:3000/home/reservations?date=${appointmentDate.toISOString().split('T')[0]}`)
+    fetch(`http://192.168.1.22:3000/home/reservations?date=${appointmentDate.toISOString().split('T')[0]}`)
       .then(response => response.json())
       .then(data => {
         // Gelen veriyi doğru formatta kontrol etme
@@ -135,12 +135,19 @@ const TimeList = ({ handleHourSelect, reservationTimes }) => {
 
   return (
     <FlatList
-      data={Object.keys(hours).filter((time) => hours[time] === 0)}
-      renderItem={({ item }) => (
-        <TouchableOpacity style={styles.timeButton} onPress={() => handleHourSelect(item)}>
-          <Text style={styles.timeText}>{item}</Text>
-        </TouchableOpacity>
-      )}
+      data={Object.keys(hours)}
+      renderItem={({ item }) => {
+        const isReserved = hours[item] === 1;
+        return (
+          <TouchableOpacity
+            style={[styles.timeButton, isReserved && styles.timeButtonReserved]}
+            onPress={() => !isReserved && handleHourSelect(item)}
+            disabled={isReserved}
+          >
+            <Text style={styles.timeText}>{item}</Text>
+          </TouchableOpacity>
+        );
+      }}
       keyExtractor={(item) => item}
       contentContainerStyle={styles.timeList}
       showsVerticalScrollIndicator={false}
@@ -190,6 +197,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#0099cc',
     marginVertical: 5,
   },
+  timeButtonReserved: {
+    backgroundColor: 'grey',
+  },
   timeText: {
     fontSize: 18,
     color: 'white',
@@ -209,3 +219,4 @@ const styles = StyleSheet.create({
 });
 
 export default MainScreen;
+
