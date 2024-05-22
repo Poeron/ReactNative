@@ -1,30 +1,70 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, Alert } from 'react-native';
 
 const AdminScreen = () => {
-  const [requests, setRequests] = useState([
-    { id: 1, name: "Alice Smith", date: "29 Mayıs 14:00" },
-    { id: 2, name: "Bob Johnson", date: "30 Mayıs 15:30" },
-    { id: 3, name: "Charlie Brown", date: "31 Mayıs 16:45" },
-  ]);
+  const [requests, setRequests] = useState([]);
+  const [appointments, setAppointments] = useState([]);
+  const [selectedTab, setSelectedTab] = useState('requests');
 
-  const [appointments, setAppointments] = useState([
-    { id: 1, name: "John Doe", date: "1 Haziran 10:00" },
-    { id: 2, name: "Jane Smith", date: "2 Haziran 11:30" },
-    { id: 3, name: "Michael Johnson", date: "3 Haziran 13:15" },
-  ]);
+  useEffect(() => {
+    if (selectedTab === 'requests') {
+      fetch('http://192.168.1.23:3000/unaccepted-reservations')
+        .then((response) => response.json())
+        .then((data) => {
+          if (Array.isArray(data)) {
+            const formattedData = data.map(item => ({
+              ...item,
+              formattedDate: new Date(item.reservation_date).toISOString().split('T')[0] + ' ' + item.reservation_time
+            }));
+            setRequests(formattedData);
+          }
+        })
+        .catch((error) => console.error('Error fetching unaccepted reservations:', error));
+    } else if (selectedTab === 'appointments') {
+      fetch('http://192.168.1.23:3000/accepted-reservations')
+        .then((response) => response.json())
+        .then((data) => {
+          if (Array.isArray(data)) {
+            const formattedData = data.map(item => ({
+              ...item,
+              formattedDate: new Date(item.reservation_date).toISOString().split('T')[0] + ' ' + item.reservation_time
+            }));
+            setAppointments(formattedData);
+          }
+        })
+        .catch((error) => console.error('Error fetching accepted reservations:', error));
+    }
+  }, [selectedTab]);
 
   const handleAccept = (id) => {
-    // Accept logic
+    fetch(`http://192.168.1.23:3000/reservations/${id}/accept`, {
+      method: 'PUT',
+    })
+      .then((response) => {
+        if (response.ok) {
+          setRequests((prevRequests) => prevRequests.filter((request) => request.id !== id));
+          Alert.alert('Success', 'Request accepted successfully');
+        }
+      })
+      .catch((error) => console.error('Error accepting request:', error));
   };
 
   const handleReject = (id) => {
-    // Reject logic
+    fetch(`http://192.168.1.23:3000/reservations/${id}`, {
+      method: 'DELETE',
+    })
+      .then((response) => {
+        if (response.ok) {
+          setRequests((prevRequests) => prevRequests.filter((request) => request.id !== id));
+          Alert.alert('Success', 'Request rejected successfully');
+        }
+      })
+      .catch((error) => console.error('Error rejecting request:', error));
   };
 
   const renderRequestItem = ({ item }) => (
     <View style={styles.itemContainer}>
-      <Text style={styles.itemText}>{item.date}</Text>
+      <Text style={styles.itemText}>{item.formattedDate}</Text>
       <Text style={styles.itemText}>{item.name}</Text>
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={[styles.button, styles.acceptButton]} onPress={() => handleAccept(item.id)}>
@@ -39,12 +79,10 @@ const AdminScreen = () => {
 
   const renderAppointmentItem = ({ item }) => (
     <View style={styles.itemContainer}>
-      <Text style={styles.itemText}>{item.date}</Text>
+      <Text style={styles.itemText}>{item.formattedDate}</Text>
       <Text style={styles.itemText}>{item.name}</Text>
     </View>
   );
-
-  const [selectedTab, setSelectedTab] = useState('requests');
 
   return (
     <View style={styles.container}>

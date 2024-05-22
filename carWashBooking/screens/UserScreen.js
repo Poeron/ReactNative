@@ -53,7 +53,7 @@ const MainScreen = () => {
       })
     };
   
-    fetch('http://192.168.1.22:3000/reservations', requestOptions)
+    fetch('http://192.168.1.23:3000/reservations', requestOptions)
       .then(response => response.json())
       .then(data => {
         console.log('Randevu oluşturuldu:', data);
@@ -70,7 +70,7 @@ const MainScreen = () => {
     const appointmentDate = new Date(selectedDate);
     appointmentDate.setDate(appointmentDate.getDate()); // Seçili tarihe bir gün ekleyerek güncelle
     // Belirli bir tarihe ait rezervasyon saatlerini getirme işlemi
-    fetch(`http://192.168.1.22:3000/home/reservations?date=${appointmentDate.toISOString().split('T')[0]}`)
+    fetch(`http://192.168.1.23:3000/home/reservations?date=${appointmentDate.toISOString().split('T')[0]}`)
       .then(response => response.json())
       .then(data => {
         // Gelen veriyi doğru formatta kontrol etme
