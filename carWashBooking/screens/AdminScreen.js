@@ -42,12 +42,29 @@ const AdminScreen = () => {
     })
       .then((response) => {
         if (response.ok) {
-          setRequests((prevRequests) => prevRequests.filter((request) => request.id !== id));
-          Alert.alert('Success', 'Request accepted successfully');
+          fetch('http://192.168.1.23:3000/sendEmail', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ reservation_id: id }),
+          })
+            .then((emailResponse) => {
+              if (emailResponse.ok) {
+                setRequests((prevRequests) => prevRequests.filter((request) => request.id !== id));
+                Alert.alert('Success', 'Request accepted and email sent successfully');
+              } else {
+                Alert.alert('Error', 'Request accepted but email not sent');
+              }
+            })
+            .catch((emailError) => console.error('Error sending email:', emailError));
+        } else {
+          Alert.alert('Error', 'Error accepting request');
         }
       })
       .catch((error) => console.error('Error accepting request:', error));
   };
+  
 
   const handleReject = (id) => {
     fetch(`http://192.168.1.23:3000/reservations/${id}`, {
