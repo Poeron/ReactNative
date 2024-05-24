@@ -26,7 +26,7 @@ export default function LoginScreen() {
     };
   
     // HTTP isteği gönder
-    fetch('http://192.168.1.23:3000/login', requestOptions)
+    fetch('http://192.168.1.22:3000/login', requestOptions)
       .then(response => {
         if (!response.ok) {
           throw new Error('Kullanıcı girişi başarısız');

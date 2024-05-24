@@ -8,7 +8,7 @@ const AdminScreen = () => {
 
   useEffect(() => {
     if (selectedTab === 'requests') {
-      fetch('http://192.168.1.23:3000/unaccepted-reservations')
+      fetch('http://192.168.1.22:3000/unaccepted-reservations')
         .then((response) => response.json())
         .then((data) => {
           if (Array.isArray(data)) {
@@ -21,7 +21,7 @@ const AdminScreen = () => {
         })
         .catch((error) => console.error('Error fetching unaccepted reservations:', error));
     } else if (selectedTab === 'appointments') {
-      fetch('http://192.168.1.23:3000/accepted-reservations')
+      fetch('http://192.168.1.22:3000/accepted-reservations')
         .then((response) => response.json())
         .then((data) => {
           if (Array.isArray(data)) {
@@ -37,12 +37,12 @@ const AdminScreen = () => {
   }, [selectedTab]);
 
   const handleAccept = (id) => {
-    fetch(`http://192.168.1.23:3000/reservations/${id}/accept`, {
+    fetch(`http://192.168.1.22:3000/reservations/${id}/accept`, {
       method: 'PUT',
     })
       .then((response) => {
         if (response.ok) {
-          fetch('http://192.168.1.23:3000/sendEmail', {
+          fetch('http://192.168.1.22:3000/sendEmail', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -52,14 +52,14 @@ const AdminScreen = () => {
             .then((emailResponse) => {
               if (emailResponse.ok) {
                 setRequests((prevRequests) => prevRequests.filter((request) => request.id !== id));
-                Alert.alert('Success', 'Request accepted and email sent successfully');
+                Alert.alert('Başarılı', 'İstek kabul edildi ve e-posta başarıyla gönderildi');
               } else {
-                Alert.alert('Error', 'Request accepted but email not sent');
+                Alert.alert('Hata', 'İstek kabul edildi ancak e-posta gönderilemedi');
               }
             })
             .catch((emailError) => console.error('Error sending email:', emailError));
         } else {
-          Alert.alert('Error', 'Error accepting request');
+          Alert.alert('Hata', 'İstek kabul edilirken hata oluştu');
         }
       })
       .catch((error) => console.error('Error accepting request:', error));
@@ -67,20 +67,20 @@ const AdminScreen = () => {
   
 
   const handleReject = (id) => {
-    fetch(`http://192.168.1.23:3000/reservations/${id}`, {
+    fetch(`http://192.168.1.22:3000/reservations/${id}`, {
       method: 'DELETE',
     })
       .then((response) => {
         if (response.ok) {
           setRequests((prevRequests) => prevRequests.filter((request) => request.id !== id));
-          Alert.alert('Success', 'Request rejected successfully');
+          Alert.alert('Başarılı', 'İstek başarıyla reddedildi');
         }
       })
       .catch((error) => console.error('Error rejecting request:', error));
   };
 
   const renderRequestItem = ({ item }) => (
-    <View style={styles.itemContainer}>
+    <View style={styles.card}>
       <Text style={styles.itemText}>{item.formattedDate}</Text>
       <Text style={styles.itemText}>{item.name}</Text>
       <View style={styles.buttonContainer}>
@@ -95,7 +95,7 @@ const AdminScreen = () => {
   );
 
   const renderAppointmentItem = ({ item }) => (
-    <View style={styles.itemContainer}>
+    <View style={styles.card}>
       <Text style={styles.itemText}>{item.formattedDate}</Text>
       <Text style={styles.itemText}>{item.name}</Text>
     </View>
@@ -141,64 +141,82 @@ const AdminScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#f7f8fc',
     paddingVertical: 20,
   },
-  itemContainer: {
-    backgroundColor: 'white',
-    borderRadius: 10,
-    marginBottom: 20,
-    padding: 20,
+  card: {
+    backgroundColor: '#9999e6', // Açık mavi renk
+    borderRadius: 8,
+    marginBottom: 15,
+    padding: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
+    marginLeft: 10,
+    marginRight: 10,
   },
   itemText: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
     marginBottom: 5,
+    textAlign: 'center', // Metni ortala
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginTop: 10,
   },
   button: {
     width: '48%',
-    borderRadius: 10,
+    borderRadius: 8,
     paddingVertical: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },
   acceptButton: {
-    backgroundColor: 'green',
+    backgroundColor: '#4caf50',
   },
   rejectButton: {
-    backgroundColor: 'red',
+    backgroundColor: '#f44336',
   },
   buttonText: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
     color: 'white',
   },
   navbar: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    backgroundColor: 'white',
+    backgroundColor: '#ffffff',
     paddingVertical: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 5,
   },
   navButton: {
     flex: 1,
     alignItems: 'center',
+    paddingVertical: 10,
   },
   navButtonText: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
+    color: '#555',
   },
   activeNavButton: {
-    borderBottomWidth: 2,
-    borderBottomColor: 'green',
+    borderBottomWidth: 3,
+    borderBottomColor: '#9999e6',
   },
   activeNavButtonText: {
-    color: 'green',
+    color: '#9999e6',
   },
 });
 
 export default AdminScreen;
+

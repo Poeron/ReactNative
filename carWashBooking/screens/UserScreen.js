@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, Modal, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
+import { View, Text, Button, Modal, TouchableOpacity, StyleSheet, FlatList, Animated } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
@@ -10,6 +10,7 @@ const MainScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [reservationTimes, setReservationTimes] = useState([]);
   const navigation = useNavigation();
+  const [modalAnimation] = useState(new Animated.Value(0));
 
   const handleSignOut = () => {
     // Kullanıcıyı çıkış yapmaya yönlendir
@@ -35,13 +36,18 @@ const MainScreen = () => {
     // Seçilen saati ayarla ve modalı görünür yap
     setSelectedHour(hour);
     setModalVisible(true);
+    Animated.timing(modalAnimation, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
   };
 
   const handleAppointment = () => {
     // Seçilen tarihe bir gün ekleyerek yeni bir tarih oluştur
     const appointmentDate = new Date(selectedDate);
     appointmentDate.setDate(appointmentDate.getDate()); // Seçili tarihe bir gün ekleyerek güncelle
-  
+
     // Randevu oluşturma işlemi
     const requestOptions = {
       method: 'POST',
@@ -52,13 +58,14 @@ const MainScreen = () => {
         reservation_time: selectedHour
       })
     };
-  
-    fetch('http://192.168.1.23:3000/reservations', requestOptions)
+
+    fetch('http://192.168.1.22:3000/reservations', requestOptions)
       .then(response => response.json())
       .then(data => {
         console.log('Randevu oluşturuldu:', data);
         alert('Randevu oluşturuldu');
         setModalVisible(false);
+        modalAnimation.setValue(0); // Reset animation value
       })
       .catch(error => {
         console.error('Randevu oluşturulurken bir hata oluştu:', error);
@@ -70,7 +77,7 @@ const MainScreen = () => {
     const appointmentDate = new Date(selectedDate);
     appointmentDate.setDate(appointmentDate.getDate()); // Seçili tarihe bir gün ekleyerek güncelle
     // Belirli bir tarihe ait rezervasyon saatlerini getirme işlemi
-    fetch(`http://192.168.1.23:3000/home/reservations?date=${appointmentDate.toISOString().split('T')[0]}`)
+    fetch(`http://192.168.1.22:3000/home/reservations?date=${appointmentDate.toISOString().split('T')[0]}`)
       .then(response => response.json())
       .then(data => {
         // Gelen veriyi doğru formatta kontrol etme
@@ -108,18 +115,18 @@ const MainScreen = () => {
         <TimeList handleHourSelect={handleHourSelect} reservationTimes={reservationTimes} />
       </View>
       <Modal
-        animationType="slide"
+        animationType="none"
         transparent={true}
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <View style={styles.modalBackground}>
+        <Animated.View style={[styles.modalBackground, { opacity: modalAnimation }]}>
           <View style={styles.modalContainer}>
             <Text>Randevu Tarihi: {selectedDate.toDateString()}</Text>
             <Text>Seçilen Saat: {selectedHour}</Text>
             <Button title="Randevu Al" onPress={handleAppointment} />
           </View>
-        </View>
+        </Animated.View>
       </Modal>
       <Button title="Çıkış Yap" onPress={handleSignOut} />
     </View>
@@ -219,4 +226,3 @@ const styles = StyleSheet.create({
 });
 
 export default MainScreen;
-

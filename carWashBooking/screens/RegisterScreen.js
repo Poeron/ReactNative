@@ -28,7 +28,7 @@ export default function SignUpScreen() {
     };
   
     // HTTP isteği gönder
-    fetch('http://192.168.1.23:3000/register', requestOptions)
+    fetch('http://192.168.1.22:3000/register', requestOptions)
       .then(response => {
         if (!response.ok) {
           throw new Error('Üye olma işlemi başarısız');
